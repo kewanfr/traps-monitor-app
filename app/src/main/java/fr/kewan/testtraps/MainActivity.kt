@@ -8,6 +8,7 @@ import android.widget.Switch
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,9 +20,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var serverHost: EditText
     private lateinit var serverPort: EditText
     private lateinit var deviceName: EditText
-    private lateinit var toogleNotifSound: Switch
+    private lateinit var toogleNotifSound: SwitchCompat
 //    private lateinit var toogleSendStats: Switch
-    private lateinit var refreshInterval: EditText
+//    private lateinit var refreshInterval: EditText
+    private lateinit var saveButton: Button
     private lateinit var connectButton: Button
     private lateinit var disconnectButton: Button
     private lateinit var testNotifButton: Button
@@ -56,6 +58,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun savePreferences() {
+        // Récupérer les valeurs et les sauvegarder dans les préférences
+        val host = serverHost.text.toString()
+        val port = serverPort.text.toString().toIntOrNull() ?: 80
+        val name = deviceName.text.toString()
+        val toogle_notif_sound = toogleNotifSound.isChecked
+//            val toogle = toogleSendStats.isChecked
+//            val interval = refreshInterval.text.toString().toIntOrNull() ?: 0
+
+        val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
+        with (sharedPref.edit()) {
+            putString("serverHost", host)
+            putInt("serverPort", port)
+            putString("deviceName", name)
+            putBoolean("toogleNotifSound", toogle_notif_sound)
+//                putBoolean("toogleSendStats", toogle)
+//                putInt("refreshInterval", interval)
+            apply()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -67,6 +90,7 @@ class MainActivity : AppCompatActivity() {
         toogleNotifSound = findViewById(R.id.toogleNotifSound)
 //        toogleSendStats = findViewById(R.id.toogleSendStats)
 //        refreshInterval = findViewById(R.id.refreshInterval)
+        saveButton = findViewById(R.id.saveButton)
         connectButton = findViewById(R.id.connectButton)
         disconnectButton = findViewById(R.id.disconnectButton)
         testNotifButton = findViewById(R.id.testNotifButton)
@@ -95,37 +119,27 @@ class MainActivity : AppCompatActivity() {
 //            toogleSendStats.isChecked = sharedPref.getBoolean("toogleSendStats", false)
 //        }
 
-        if (sharedPref.contains("refreshInterval")) {
-            refreshInterval.setText(sharedPref.getInt("refreshInterval", 60).toString())
-        }
+//        if (sharedPref.contains("refreshInterval")) {
+//            refreshInterval.setText(sharedPref.getInt("refreshInterval", 60).toString())
+//        }
 
         mqttClientManager = MqttClientManager(this, "", "")
 
+        saveButton.setOnClickListener {
+            savePreferences()
+            Toast.makeText(this, "Préférences sauvegardées", Toast.LENGTH_SHORT).show();
+        }
+
         connectButton.setOnClickListener {
-            // Récupérer les valeurs et démarer la connexion MQTT
-            val host = serverHost.text.toString()
-            val port = serverPort.text.toString().toIntOrNull() ?: 80
-            val name = deviceName.text.toString()
-            val toogle_notif_sound = toogleNotifSound.isChecked
-//            val toogle = toogleSendStats.isChecked
-            val interval = refreshInterval.text.toString().toIntOrNull() ?: 0
 
-            val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
-            with (sharedPref.edit()) {
-                putString("serverHost", host)
-                putInt("serverPort", port)
-                putString("deviceName", name)
-                putBoolean("toogleNotifSound", toogle_notif_sound)
-//                putBoolean("toogleSendStats", toogle)
-                putInt("refreshInterval", interval)
-                apply()
+            savePreferences()
+
+            if (!mqttClientManager.isConnected()) {
+                connectToServer()
+            }else {
+                Toast.makeText(this, "Déjà connecté", Toast.LENGTH_SHORT).show();
             }
 
-            if (mqttClientManager.isConnected()) {
-                mqttClientManager.disconnect()
-            }
-
-            connectToServer()
         }
 
         disconnectButton.setOnClickListener {
