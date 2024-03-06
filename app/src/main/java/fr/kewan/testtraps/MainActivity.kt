@@ -1,6 +1,12 @@
 package fr.kewan.testtraps
 
+import android.content.Context
+import android.graphics.ColorSpace.Model
+import android.os.Build
 import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Switch
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -9,22 +15,113 @@ import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : AppCompatActivity() {
 
-    private val BROKER_URL = "tcp://192.168.0.21:1883";
-    private val CLIENT_ID = "android-client";
+    // private val BROKER_URL = "tcp://192.168.0.21:1883";
+    // private val CLIENT_ID = Build.MODEL;
 
-    private lateinit var mqttClientManager: MqttClientManager
+    private lateinit var mqttClientManager: MqttClientManager;
+
+    private lateinit var serverHost: EditText
+    private lateinit var serverPort: EditText
+    private lateinit var deviceName: EditText
+    private lateinit var toogleSendStats: Switch
+    private lateinit var refreshInterval: EditText
+    private lateinit var connectButton: Button
+
+    fun connectToServer(){
+        // On vérifie si on est déjà connecté et si mqttClientManager est déjà initialisé
+        /*if (mqttClientManager.isConnected()) {
+            mqttClientManager.disconnect()
+        }*/
+
+        val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE);
+
+        val host = sharedPref.getString("serverHost", "")
+        val port = sharedPref.getInt("serverPort", 80)
+        val name = sharedPref.getString("deviceName", Build.MODEL)
+
+        if (host == null || host == "") {
+            Toast.makeText(this, "Veuillez renseigner l'adresse du serveur", Toast.LENGTH_SHORT).show();
+            return
+        }
+
+        val brokerUrl = "tcp://$host:$port";
+
+        // On vérifie que les champs sont remplis
+        mqttClientManager = MqttClientManager(this, brokerUrl, name ?: Build.MODEL);
+
+        try {
+            mqttClientManager.connect()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Impossible de se connecter au serveur", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        serverHost = findViewById(R.id.serverHost)
+        serverPort = findViewById(R.id.serverPort)
+        deviceName = findViewById(R.id.deviceName)
+        toogleSendStats = findViewById(R.id.toogleSendStats)
+        refreshInterval = findViewById(R.id.refreshInterval)
+        connectButton = findViewById(R.id.connectButton)
+
+        // Chargez les préférences
+        val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
+
+        if (sharedPref.contains("serverHost")) {
+            serverHost.setText(sharedPref.getString("serverHost", ""))
         }
 
-        Toast.makeText(this, "Connecting to broker: $BROKER_URL, client: $CLIENT_ID", Toast.LENGTH_SHORT).show();
+        if (sharedPref.contains("serverPort")) {
+            println("serverPort: ${sharedPref.getInt("serverPort", 80)}")
+            serverPort.setText(sharedPref.getInt("serverPort", 80).toString())
+        }
+
+        if (sharedPref.contains("deviceName"))  {
+            deviceName.setText(sharedPref.getString("deviceName", Build.MODEL))
+        }
+
+        if (sharedPref.contains("toogleSendStats")) {
+            toogleSendStats.isChecked = sharedPref.getBoolean("toogleSendStats", false)
+        }
+
+        if (sharedPref.contains("refreshInterval")) {
+            refreshInterval.setText(sharedPref.getInt("refreshInterval", 60).toString())
+        }
+
+        mqttClientManager = MqttClientManager(this, "", "")
+
+        connectButton.setOnClickListener {
+            // Récupérer les valeurs et démarer la connexion MQTT
+            val host = serverHost.text.toString()
+            val port = serverPort.text.toString().toIntOrNull() ?: 80
+            val name = deviceName.text.toString()
+            val toogle = toogleSendStats.isChecked
+            val interval = refreshInterval.text.toString().toIntOrNull() ?: 0
+
+            val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
+            with (sharedPref.edit()) {
+                putString("serverHost", host)
+                putInt("serverPort", port)
+                putString("deviceName", name)
+                putBoolean("toogleSendStats", toogle)
+                putInt("refreshInterval", interval)
+                apply()
+            }
+
+            if (mqttClientManager.isConnected()) {
+                mqttClientManager.disconnect()
+            }
+
+            connectToServer()
+        }
+
+
+        // Toast.makeText(this, "Connecting to broker: $BROKER_URL, client: $CLIENT_ID", Toast.LENGTH_SHORT).show();
 
         /*try {
 
@@ -39,10 +136,13 @@ class MainActivity : AppCompatActivity() {
         subscribeToTopic("/test/tt")*/
 
         // On message
+        // mqttClientManager = MqttClientManager(this, BROKER_URL, CLIENT_ID)
+        // mqttClientManager.connect()
 
-        mqttClientManager = MqttClientManager(this, BROKER_URL, CLIENT_ID)
-        mqttClientManager.connect()
+        // Toast.makeText(this, "Device name: $CLIENT_ID", Toast.LENGTH_SHORT).show();
 
+
+        connectToServer()
 
     }
 

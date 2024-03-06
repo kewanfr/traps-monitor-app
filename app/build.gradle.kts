@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.legacysupport)
 
     implementation(libs.paho.mqtt)
     implementation(libs.paho.mqtt.service)
