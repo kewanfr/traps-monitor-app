@@ -147,6 +147,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        mqttClientManager.publishMessage("devices/${mqttClientManager.clientId}", "Disconnected");
+        mqttClientManager.disconnect()
         super.onDestroy();
     }
 

@@ -22,6 +22,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage
 
 
 class MqttClientManager(private val context: Context, serverUri: String, clientId: String) {
+
+    var clientId: String = clientId
+    var serverUri: String = serverUri
     private var mqttClient: MqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
 
     init {
@@ -66,6 +69,7 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
 
     fun disconnect() {
         try {
+            publishMessage("devices/$clientId", "Disconnected")
             mqttClient.disconnect()
         } catch (e: MqttException) {
             e.printStackTrace()
@@ -89,6 +93,9 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                     // Échec de la connexion
+
+                    Toast.makeText(context, "Échec de la connexion au serveur", Toast.LENGTH_SHORT).show()
+
                 }
             })
         } catch (e: Exception) {
@@ -104,7 +111,7 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
         }
     }
 
-    fun publishMessage(message: String, topic: String, qos: Int = 1) {
+    fun publishMessage(topic: String, message: String, qos: Int = 1) {
         try {
             mqttClient.publish(topic, MqttMessage().apply {
                 payload = message.toByteArray()
@@ -137,7 +144,7 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setStyle(NotificationCompat.BigTextStyle()
                 .bigText(content))
-            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
+            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
 
 
         with(NotificationManagerCompat.from(context)) {

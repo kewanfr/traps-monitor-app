@@ -5,88 +5,95 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Configuration TRAPS / MQTT"
-            android:textAlignment="center"
-            android:textSize="24sp"
-            android:layout_marginBottom="30dp"
-            android:layout_marginTop="30dp"
-            />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Configuration TRAPS / MQTT"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                android:layout_marginBottom="30dp"
+                android:layout_marginTop="30dp"
+                />
 
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Host du Serveur"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Host du Serveur"/>
 
-        <EditText
-            android:id="@+id/serverHost"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="ex: tcp://mqtt.example.com"
-            android:layout_marginBottom="15dp" />
+            <EditText
+                android:id="@+id/serverHost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="ex: tcp://mqtt.example.com"
+                android:layout_marginBottom="15dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Port" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Port" />
 
-        <EditText
-            android:id="@+id/serverPort"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="ex: 1883"
-            android:inputType="number"
-            android:layout_marginBottom="15dp" />
+            <EditText
+                android:id="@+id/serverPort"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="ex: 1883"
+                android:inputType="number"
+                android:layout_marginBottom="15dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nom du Périphérique" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nom du Périphérique" />
 
-        <EditText
-            android:id="@+id/deviceName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nom du périphérique"
-            android:layout_marginBottom="40dp" />
-
-
-
-        <Switch
-            android:id="@+id/toogleSendStats"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Activer l'envoi des statistiques"
-            android:layout_marginBottom="15dp"/>
+            <EditText
+                android:id="@+id/deviceName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nom du périphérique"
+                android:layout_marginBottom="40dp" />
 
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Intervalle de Rafraîchissement (en secondes)" />
 
-        <EditText
-            android:id="@+id/refreshInterval"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Intervalle"
-            android:inputType="number"
-            android:layout_marginBottom="25dp"/>
+            <Switch
+                android:id="@+id/toogleSendStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Activer l'envoi des statistiques"
+                android:layout_marginBottom="15dp"/>
 
-        <Button
-            android:id="@+id/connectButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Connecter" />
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Intervalle de Rafraîchissement (en secondes)" />
+
+            <EditText
+                android:id="@+id/refreshInterval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Intervalle"
+                android:inputType="number"
+                android:layout_marginBottom="25dp"/>
+
+            <Button
+                android:id="@+id/connectButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Connecter" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
 </LinearLayout>
