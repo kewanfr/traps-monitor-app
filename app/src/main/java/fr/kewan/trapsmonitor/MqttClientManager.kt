@@ -111,7 +111,7 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
         }
     }
 
-    private fun subscribeToTopic(topic: String) {
+    public fun subscribeToTopic(topic: String) {
         try {
             mqttClient.subscribe(topic, 1)
         } catch (e: Exception) {

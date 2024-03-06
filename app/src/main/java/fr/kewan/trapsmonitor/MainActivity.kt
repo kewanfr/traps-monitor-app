@@ -1,13 +1,17 @@
 package fr.kewan.trapsmonitor
 
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import org.w3c.dom.Text
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,12 +31,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var disconnectButton: Button
     private lateinit var testNotifButton: Button
 
+    private lateinit var batteryLevelMonitor: BatteryLevelMonitor
+
     fun connectToServer(){
         // On vérifie si on est déjà connecté et si mqttClientManager est déjà initialisé
-        /*if (mqttClientManager.isConnected()) {
-            mqttClientManager.disconnect()
-        }*/
-
         val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE);
 
         val host = sharedPref.getString("serverHost", "")
@@ -123,7 +125,6 @@ class MainActivity : AppCompatActivity() {
 //        }
 
         mqttClientManager = MqttClientManager(this, "", "")
-
         saveButton.setOnClickListener {
             savePreferences()
             Toast.makeText(this, "Préférences sauvegardées", Toast.LENGTH_SHORT).show();
@@ -142,11 +143,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         disconnectButton.setOnClickListener {
+            batteryLevelMonitor.stopMonitoring()
             mqttClientManager.disconnect()
         }
 
         testNotifButton.setOnClickListener {
-            mqttClientManager.publishMessage("notifs/${mqttClientManager.clientId}", "Test de notification")
+            val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+                registerReceiver(null, ifilter)
+            }
+
+//            val textView: TextView = findViewById(R.id.title)
+//            textView.setText(batteryStatus)
+            batteryLevelMonitor = BatteryLevelMonitor(mqttClientManager, this)
+            batteryLevelMonitor.startMonitoring()
+
+            // mqttClientManager.publishMessage("notifs/${mqttClientManager.clientId}", "Test de notification")
         }
 
 
