@@ -11,13 +11,13 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Configuration TRAPS / MQTT"
+                android:text="@string/first_page_title"
                 android:textAlignment="center"
                 android:textSize="24sp"
                 android:layout_marginBottom="30dp"
@@ -28,69 +28,102 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Host du Serveur"/>
+                android:text="@string/server_host_label"/>
 
             <EditText
                 android:id="@+id/serverHost"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="ex: tcp://mqtt.example.com"
+                android:hint="@string/server_host_hint"
                 android:layout_marginBottom="15dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Port" />
+                android:text="@string/server_port_label" />
 
             <EditText
                 android:id="@+id/serverPort"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="ex: 1883"
+                android:hint="@string/server_port_hint"
                 android:inputType="number"
                 android:layout_marginBottom="15dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nom du Périphérique" />
+                android:text="@string/device_name_label" />
 
             <EditText
                 android:id="@+id/deviceName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nom du périphérique"
-                android:layout_marginBottom="40dp" />
+                android:hint="@string/device_name_hint"
+                android:layout_marginBottom="15dp" />
 
-
-
-            <Switch
-                android:id="@+id/toogleSendStats"
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/toogleNotifSound"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Activer l'envoi des statistiques"
-                android:layout_marginBottom="15dp"/>
+                android:text="@string/toogle_notif_sound_text"/>
+
+<!--            <androidx.appcompat.widget.SwitchCompat-->
+<!--                android:id="@+id/toogleSendStats"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@string/toogle_send_stats_text"/>-->
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Intervalle de Rafraîchissement (en secondes)" />
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Intervalle de Rafraîchissement (en secondes)" />-->
 
-            <EditText
-                android:id="@+id/refreshInterval"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Intervalle"
-                android:inputType="number"
-                android:layout_marginBottom="25dp"/>
+<!--            <EditText-->
+<!--                android:id="@+id/refreshInterval"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:hint="Intervalle"-->
+<!--                android:inputType="number"-->
+<!--                android:layout_marginBottom="25dp"/>-->
+
+
 
             <Button
                 android:id="@+id/connectButton"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Connecter" />
+                android:layout_marginTop="25dp"
+                android:text="@string/connect_btn_text" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal">
+
+
+                <Button
+                    android:id="@+id/disconnectButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="@string/disconnect_btn_text"
+                    android:textColorLink="#673AB7" />
+
+
+                <Button
+                    android:id="@+id/testNotifButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/test_notif_btn_text" />
+
+            </LinearLayout>
+
+
 
         </LinearLayout>
     </ScrollView>
