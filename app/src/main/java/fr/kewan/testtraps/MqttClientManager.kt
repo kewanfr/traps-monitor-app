@@ -1,6 +1,7 @@
 package fr.kewan.testtraps
 
 import android.Manifest
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -8,6 +9,7 @@ import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.os.Build
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -43,10 +45,17 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
                 // topic: notifs/DeviceName
                 if (topic.startsWith("notifs/")) {
                     val deviceName = topic.substring(7)
-                    if (deviceName == clientId) {
+                    if (deviceName.lowercase() == clientId.lowercase()) {
                         Toast.makeText(context, "$message", Toast.LENGTH_LONG).show()
 
                         showNotification("Nouveau message", "$message")
+                    }
+                }
+
+                if (topic.startsWith("toasts/")) {
+                    val deviceName = topic.substring(7)
+                    if (deviceName.lowercase() == clientId.lowercase()) {
+                        Toast.makeText(context, "$message", Toast.LENGTH_LONG).show()
                     }
                 }
 
@@ -126,6 +135,10 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
         val notificationId = 1
         val channelId = "mqtt_messages"
 
+        val sharedPref = context.getSharedPreferences("MQTTConfig", AppCompatActivity.MODE_PRIVATE);
+
+        val toogleNotifSound = sharedPref.getBoolean("toogleNotifSound", true)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Messages TRAPS"
             val descriptionText = "Notifications de messages TRAPS"
@@ -142,10 +155,9 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
             .setContentTitle(title)
             .setContentText(content)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(content))
-            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(content));
 
+        if (toogleNotifSound) builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
 
         with(NotificationManagerCompat.from(context)) {
             if (ActivityCompat.checkSelfPermission(

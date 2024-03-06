@@ -1,7 +1,5 @@
 package fr.kewan.testtraps
 
-import android.content.Context
-import android.graphics.ColorSpace.Model
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
@@ -10,8 +8,6 @@ import android.widget.Switch
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,9 +19,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var serverHost: EditText
     private lateinit var serverPort: EditText
     private lateinit var deviceName: EditText
-    private lateinit var toogleSendStats: Switch
+    private lateinit var toogleNotifSound: Switch
+//    private lateinit var toogleSendStats: Switch
     private lateinit var refreshInterval: EditText
     private lateinit var connectButton: Button
+    private lateinit var disconnectButton: Button
+    private lateinit var testNotifButton: Button
 
     fun connectToServer(){
         // On vérifie si on est déjà connecté et si mqttClientManager est déjà initialisé
@@ -65,9 +64,12 @@ class MainActivity : AppCompatActivity() {
         serverHost = findViewById(R.id.serverHost)
         serverPort = findViewById(R.id.serverPort)
         deviceName = findViewById(R.id.deviceName)
-        toogleSendStats = findViewById(R.id.toogleSendStats)
-        refreshInterval = findViewById(R.id.refreshInterval)
+        toogleNotifSound = findViewById(R.id.toogleNotifSound)
+//        toogleSendStats = findViewById(R.id.toogleSendStats)
+//        refreshInterval = findViewById(R.id.refreshInterval)
         connectButton = findViewById(R.id.connectButton)
+        disconnectButton = findViewById(R.id.disconnectButton)
+        testNotifButton = findViewById(R.id.testNotifButton)
 
         // Chargez les préférences
         val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
@@ -85,9 +87,13 @@ class MainActivity : AppCompatActivity() {
             deviceName.setText(sharedPref.getString("deviceName", Build.MODEL))
         }
 
-        if (sharedPref.contains("toogleSendStats")) {
-            toogleSendStats.isChecked = sharedPref.getBoolean("toogleSendStats", false)
+        if (sharedPref.contains("toogleNotifSound")) {
+            toogleNotifSound.isChecked = sharedPref.getBoolean("toogleNotifSound", true)
         }
+
+//        if (sharedPref.contains("toogleSendStats")) {
+//            toogleSendStats.isChecked = sharedPref.getBoolean("toogleSendStats", false)
+//        }
 
         if (sharedPref.contains("refreshInterval")) {
             refreshInterval.setText(sharedPref.getInt("refreshInterval", 60).toString())
@@ -100,7 +106,8 @@ class MainActivity : AppCompatActivity() {
             val host = serverHost.text.toString()
             val port = serverPort.text.toString().toIntOrNull() ?: 80
             val name = deviceName.text.toString()
-            val toogle = toogleSendStats.isChecked
+            val toogle_notif_sound = toogleNotifSound.isChecked
+//            val toogle = toogleSendStats.isChecked
             val interval = refreshInterval.text.toString().toIntOrNull() ?: 0
 
             val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
@@ -108,7 +115,8 @@ class MainActivity : AppCompatActivity() {
                 putString("serverHost", host)
                 putInt("serverPort", port)
                 putString("deviceName", name)
-                putBoolean("toogleSendStats", toogle)
+                putBoolean("toogleNotifSound", toogle_notif_sound)
+//                putBoolean("toogleSendStats", toogle)
                 putInt("refreshInterval", interval)
                 apply()
             }
@@ -118,6 +126,14 @@ class MainActivity : AppCompatActivity() {
             }
 
             connectToServer()
+        }
+
+        disconnectButton.setOnClickListener {
+            mqttClientManager.disconnect()
+        }
+
+        testNotifButton.setOnClickListener {
+            mqttClientManager.publishMessage("notifs/${mqttClientManager.clientId}", "Test de notification")
         }
 
 
