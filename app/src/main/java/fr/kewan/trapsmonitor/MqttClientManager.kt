@@ -1,7 +1,6 @@
-package fr.kewan.testtraps
+package fr.kewan.trapsmonitor
 
 import android.Manifest
-import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context

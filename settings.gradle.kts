@@ -21,5 +21,5 @@ dependencyResolutionManagement {
 
 }
 
-rootProject.name = "TestTraps"
+rootProject.name = "Traps Monitor"
 include(":app")

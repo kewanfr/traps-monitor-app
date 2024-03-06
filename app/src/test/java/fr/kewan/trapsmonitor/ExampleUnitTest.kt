@@ -1,4 +1,4 @@
-package fr.kewan.testtraps
+package fr.kewan.trapsmonitor
 
 import org.junit.Test
 

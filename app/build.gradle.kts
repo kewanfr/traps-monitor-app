@@ -3,16 +3,27 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
 }
 
+val versionMajor = 1
+val versionMinor = 4
+val versionPatch = 2
+val versionBuild = 1
+
+val bundleId = "fr.kewan.trapsmonitor"
+
+val minimumVersion = 19 // Android 4.4
+val buildVersion = 30 // Android 11
+// Old: 34
+
 android {
-    namespace = "fr.kewan.testtraps"
-    compileSdk = 34
+    namespace = bundleId
+    compileSdk = buildVersion
 
     defaultConfig {
-        applicationId = "fr.kewan.testtraps"
-        minSdk = 19
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        applicationId = bundleId
+        minSdk = minimumVersion
+        targetSdk = buildVersion
+        versionCode = versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+        versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
