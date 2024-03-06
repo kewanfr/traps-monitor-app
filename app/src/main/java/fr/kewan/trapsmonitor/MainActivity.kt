@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         val host = serverHost.text.toString()
         val port = serverPort.text.toString().toIntOrNull() ?: 80
         val name = deviceName.text.toString()
-        val toogle_notif_sound = toogleNotifSound.isChecked
+        val toogle_notif_sound = toogleNotifSound.isChecked ?: true
 //            val toogle = toogleSendStats.isChecked
 //            val interval = refreshInterval.text.toString().toIntOrNull() ?: 0
 

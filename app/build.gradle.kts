@@ -11,7 +11,7 @@ val versionBuild = 1
 val bundleId = "fr.kewan.trapsmonitor"
 
 val minimumVersion = 19 // Android 4.4
-val buildVersion = 30 // Android 11
+val buildVersion = 34 // Android 11
 // Old: 34
 
 android {
