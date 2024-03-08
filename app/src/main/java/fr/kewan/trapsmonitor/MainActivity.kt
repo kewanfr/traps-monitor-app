@@ -19,7 +19,6 @@ class MainActivity : AppCompatActivity() {
     // private val CLIENT_ID = Build.MODEL;
 
     private lateinit var mqttClientManager: MqttClientManager;
-    private lateinit var batteryLevelMonitor: BatteryLevelMonitor
 
 
     private lateinit var serverHost: EditText
@@ -145,7 +144,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         disconnectButton.setOnClickListener {
-            batteryLevelMonitor.stopMonitoring()
             mqttClientManager.disconnect()
         }
 
@@ -156,8 +154,6 @@ class MainActivity : AppCompatActivity() {
 
 //            val textView: TextView = findViewById(R.id.title)
 //            textView.setText(batteryStatus)
-            batteryLevelMonitor = BatteryLevelMonitor(mqttClientManager, this)
-            batteryLevelMonitor.startMonitoring()
 
             mqttClientManager.publishMessage("notifs/${mqttClientManager.clientId}", "Test de notification")
         }

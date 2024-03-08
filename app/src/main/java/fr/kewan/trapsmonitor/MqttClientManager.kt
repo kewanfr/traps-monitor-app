@@ -27,11 +27,16 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
     var clientId: String = clientId
     var serverUri: String = serverUri
     private var mqttClient: MqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
+    private lateinit var batteryLevelMonitor: BatteryLevelMonitor
 
     init {
+
+        batteryLevelMonitor = BatteryLevelMonitor(this, context)
+
         mqttClient.setCallback(object : MqttCallback {
             override fun connectionLost(cause: Throwable?) {
                 // Gérer la perte de connexion ici
+                batteryLevelMonitor.stopMonitoring()
                 Toast.makeText(context, "Connexion au serveur perdue", Toast.LENGTH_SHORT).show()
                 connect()
 
@@ -99,13 +104,14 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
 
 
                     Toast.makeText(context, "Connecté au serveur", Toast.LENGTH_SHORT).show()
+                    batteryLevelMonitor.startMonitoring()
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                     // Échec de la connexion
 
                     Toast.makeText(context, "Échec de la connexion au serveur", Toast.LENGTH_SHORT).show()
-
+                    batteryLevelMonitor.stopMonitoring()
                 }
             })
         } catch (e: Exception) {
