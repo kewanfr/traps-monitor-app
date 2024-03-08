@@ -15,14 +15,20 @@ class BatteryLevelMonitor(private val mqttClientManager: MqttClientManager, priv
                 context.registerReceiver(null, ifilter)
             }
 
+            // is charging or not
+            val status: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+            val isCharging: Boolean = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+
             batteryStatus?.let { intent ->
                 val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
                 val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
                 val batteryPct: Float = level / scale.toFloat()
 
+
 //                val message = MqttMessage()
 //                message.payload = ("Battery level: ${(batteryPct * 100).toInt()}%").toByteArray()
                 mqttClientManager.publishMessage("battery/${mqttClientManager.clientId}", "${(batteryPct * 100).toInt()}")
+                mqttClientManager.publishMessage("charging/${mqttClientManager.clientId}", if (isCharging) "true" else "false")
             }
 
             handler.postDelayed(this, 60000*10) // Run this every 10 minutes
