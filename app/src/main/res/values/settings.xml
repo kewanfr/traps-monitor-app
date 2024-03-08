@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- my bool setting -->
-    <string name="my_bool_setting_title">My Boolean Setting</string>
-    <string name="my_bool_setting_key">my_bool_setting</string>
-    <bool name="my_bool_setting_default">true</bool>
-</resources>
