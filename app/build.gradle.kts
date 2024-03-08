@@ -55,7 +55,6 @@ dependencies {
 
     implementation(libs.paho.mqtt)
     implementation(libs.paho.mqtt.service)
-    implementation(libs.dotenv.kotlin)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

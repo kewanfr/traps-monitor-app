@@ -6,11 +6,9 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Handler
 import android.os.Looper
-import io.github.cdimascio.dotenv.dotenv
 
 class BatteryLevelMonitor(private val mqttClientManager: MqttClientManager, private val context: Context) {
     private val handler = Handler(Looper.getMainLooper())
-    var dotenv = dotenv()
 
     private val runnableCode = object : Runnable {
         override fun run() {
@@ -22,8 +20,7 @@ class BatteryLevelMonitor(private val mqttClientManager: MqttClientManager, priv
             publishBatteryLevel(batteryStatus)
             publishBatteryChargingStatus(batteryStatus)
 
-            val refreshInterval = dotenv["REFRESH_INTERVAL"]?.toLong() ?: 60
-            handler.postDelayed(this, refreshInterval * 1000) // Run this every minutes
+            handler.postDelayed(this, 60 * 1000) // Run this every minutes
         }
     }
 

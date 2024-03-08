@@ -29,7 +29,6 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
     private var mqttClient: MqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
 
     init {
-
         mqttClient.setCallback(object : MqttCallback {
             override fun connectionLost(cause: Throwable?) {
                 // Gérer la perte de connexion ici

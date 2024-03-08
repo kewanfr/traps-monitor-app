@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import io.github.cdimascio.dotenv.dotenv
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,54 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var disconnectButton: Button
     private lateinit var testNotifButton: Button
 
-    var dotenv = dotenv()
 
-    fun connectToServer(){
-        // On vérifie si on est déjà connecté et si mqttClientManager est déjà initialisé
-        val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
-
-        val host = sharedPref.getString("serverHost", dotenv["DEFAULT_SERVER_HOST"] ?: "")
-        val port = sharedPref.getInt("serverPort", dotenv["DEFAULT_SERVER_PORT"].toInt())
-        val name = sharedPref.getString("deviceName", Build.MODEL)
-
-        if (host == null || host == "") {
-            Toast.makeText(this, "Veuillez renseigner l'adresse du serveur", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val brokerUrl = "tcp://$host:$port"
-
-        // On vérifie que les champs sont remplis
-        mqttClientManager = MqttClientManager(this, brokerUrl, name ?: Build.MODEL)
-
-        try {
-            mqttClientManager.connect()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Impossible de se connecter au serveur", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    fun savePreferences() {
-        // Récupérer les valeurs et les sauvegarder dans les préférences
-        val host = serverHost.text.toString()
-        val port = serverPort.text.toString().toIntOrNull() ?: 80
-        val name = deviceName.text.toString()
-        val toogle_notif_sound = toogleNotifSound.isChecked
-//            val toogle = toogleSendStats.isChecked
-//            val interval = refreshInterval.text.toString().toIntOrNull() ?: 0
-
-        val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
-        with (sharedPref.edit()) {
-            putString("serverHost", host)
-            putInt("serverPort", port)
-            putString("deviceName", name)
-            putBoolean("toogleNotifSound", toogle_notif_sound)
-//                putBoolean("toogleSendStats", toogle)
-//                putInt("refreshInterval", interval)
-            apply()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,12 +50,12 @@ class MainActivity : AppCompatActivity() {
         val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
 
         if (sharedPref.contains("serverHost")) {
-            serverHost.setText(sharedPref.getString("serverHost", dotenv["DEFAULT_SERVER_HOST"] ?: ""))
+            serverHost.setText(sharedPref.getString("serverHost", "192.168.0.21" ?: ""))
         }
 
         if (sharedPref.contains("serverPort")) {
-            println("serverPort: ${sharedPref.getInt("serverPort", dotenv["DEFAULT_SERVER_PORT"].toInt() )}")
-            serverPort.setText(sharedPref.getInt("serverPort", dotenv["DEFAULT_SERVER_PORT"].toInt()).toString())
+            println("serverPort: ${sharedPref.getInt("serverPort", 1883 )}")
+            serverPort.setText(sharedPref.getInt("serverPort", 1883).toString())
         }
 
         if (sharedPref.contains("deviceName"))  {
@@ -176,6 +128,54 @@ class MainActivity : AppCompatActivity() {
 
         connectToServer()
 
+    }
+
+
+    fun connectToServer(){
+        // On vérifie si on est déjà connecté et si mqttClientManager est déjà initialisé
+        val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
+
+        val host = sharedPref.getString("serverHost", "192.168.0.21" ?: "")
+        val port = sharedPref.getInt("serverPort", 1883)
+        val name = sharedPref.getString("deviceName", Build.MODEL)
+
+        if (host == null || host == "") {
+            Toast.makeText(this, "Veuillez renseigner l'adresse du serveur", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val brokerUrl = "tcp://$host:$port"
+
+        // On vérifie que les champs sont remplis
+        mqttClientManager = MqttClientManager(this, brokerUrl, name ?: Build.MODEL)
+
+        try {
+            mqttClientManager.connect()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Impossible de se connecter au serveur", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun savePreferences() {
+        // Récupérer les valeurs et les sauvegarder dans les préférences
+        val host = serverHost.text.toString()
+        val port = serverPort.text.toString().toIntOrNull() ?: 80
+        val name = deviceName.text.toString()
+        val toogle_notif_sound = toogleNotifSound.isChecked
+//            val toogle = toogleSendStats.isChecked
+//            val interval = refreshInterval.text.toString().toIntOrNull() ?: 0
+
+        val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
+        with (sharedPref.edit()) {
+            putString("serverHost", host)
+            putInt("serverPort", port)
+            putString("deviceName", name)
+            putBoolean("toogleNotifSound", toogle_notif_sound)
+//                putBoolean("toogleSendStats", toogle)
+//                putInt("refreshInterval", interval)
+            apply()
+        }
     }
 
     override fun onDestroy() {

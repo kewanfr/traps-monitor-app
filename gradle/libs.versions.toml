@@ -12,7 +12,6 @@ constraintlayout = "2.1.4"
 androidLegacySupport = "1.0.0"
 pahoMqtt = "1.2.5"
 pahoMqttService = "1.1.1"
-dotenvKotlin = "6.4.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -26,7 +25,6 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-legacysupport = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "androidLegacySupport" }
 paho-mqtt = { group = "org.eclipse.paho", name = "org.eclipse.paho.client.mqttv3", version.ref = "pahoMqtt" }
 paho-mqtt-service = { group = "org.eclipse.paho", name = "org.eclipse.paho.android.service", version.ref = "pahoMqttService" }
-dotenv-kotlin = { group = "io.github.cdimascio", name = "dotenv-kotlin", version.ref = "dotenvKotlin" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
