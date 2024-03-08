@@ -96,15 +96,18 @@
 
             android:layout_marginTop="30dp"
             android:orientation="horizontal">
+
             <Button
                 android:id="@+id/saveButton"
-                android:layout_width="wrap_content"
+                android:layout_width="129dp"
                 android:layout_height="match_parent"
+                android:layout_marginRight="10dp"
                 android:text="@string/save_btn_text" />
 
             <Button
                 android:id="@+id/connectButton"
-                android:layout_width="210dp"
+                android:layout_width="145dp"
+
                 android:layout_height="wrap_content"
                 android:text="@string/connect_btn_text" />
         </LinearLayout>
@@ -112,7 +115,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-
                 android:layout_marginTop="30dp"
                 android:orientation="horizontal">
 
@@ -121,7 +123,7 @@
                     android:id="@+id/disconnectButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
+                    android:layout_marginRight="10dp"
                     android:text="@string/disconnect_btn_text"
                     android:textColorLink="#673AB7" />
 
