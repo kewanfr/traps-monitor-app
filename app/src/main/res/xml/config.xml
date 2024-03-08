@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="server_url">https://myserver.com</string>
+    <integer name="refresh_battery_interval">60</integer>
+    <bool name="enable_notifications">true</bool>
+</resources>
