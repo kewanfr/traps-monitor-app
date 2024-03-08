@@ -19,6 +19,8 @@ class MainActivity : AppCompatActivity() {
     // private val CLIENT_ID = Build.MODEL;
 
     private lateinit var mqttClientManager: MqttClientManager;
+    private lateinit var batteryLevelMonitor: BatteryLevelMonitor
+
 
     private lateinit var serverHost: EditText
     private lateinit var serverPort: EditText
@@ -31,14 +33,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var disconnectButton: Button
     private lateinit var testNotifButton: Button
 
-    private lateinit var batteryLevelMonitor: BatteryLevelMonitor
+
 
     fun connectToServer(){
         // On vérifie si on est déjà connecté et si mqttClientManager est déjà initialisé
         val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE);
 
-        val host = sharedPref.getString("serverHost", "")
-        val port = sharedPref.getInt("serverPort", 80)
+        val host = sharedPref.getString("serverHost", "192.168.0.21")
+        val port = sharedPref.getInt("serverPort", 1883)
         val name = sharedPref.getString("deviceName", Build.MODEL)
 
         if (host == null || host == "") {
@@ -157,7 +159,7 @@ class MainActivity : AppCompatActivity() {
             batteryLevelMonitor = BatteryLevelMonitor(mqttClientManager, this)
             batteryLevelMonitor.startMonitoring()
 
-            // mqttClientManager.publishMessage("notifs/${mqttClientManager.clientId}", "Test de notification")
+            mqttClientManager.publishMessage("notifs/${mqttClientManager.clientId}", "Test de notification")
         }
 
 
@@ -192,18 +194,5 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy();
     }
 
-    private fun publishMessage(topic: String, message: String) {
-        Toast.makeText(this, "Publishing message: $message", Toast.LENGTH_SHORT).show();
 
-        //mqttHandler.publish(topic, message);
-
-
-    }
-
-    private fun subscribeToTopic(topic: String) {
-        Toast.makeText(this, "Subscribing to topic: $topic", Toast.LENGTH_SHORT).show();
-
-        //mqttHandler.subscribe(topic)
-
-    }
 }

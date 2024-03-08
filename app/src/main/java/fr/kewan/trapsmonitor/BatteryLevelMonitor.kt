@@ -25,7 +25,7 @@ class BatteryLevelMonitor(private val mqttClientManager: MqttClientManager, priv
                 mqttClientManager.publishMessage("battery/${mqttClientManager.clientId}", "${(batteryPct * 100).toInt()}")
             }
 
-            handler.postDelayed(this, 60000) // Run this every 60 seconds
+            handler.postDelayed(this, 60000*10) // Run this every 10 minutes
         }
     }
 

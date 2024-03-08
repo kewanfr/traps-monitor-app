@@ -33,6 +33,7 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
             override fun connectionLost(cause: Throwable?) {
                 // Gérer la perte de connexion ici
                 Toast.makeText(context, "Connexion au serveur perdue", Toast.LENGTH_SHORT).show()
+                connect()
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {
@@ -47,7 +48,7 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
                     if (deviceName.lowercase() == clientId.lowercase()) {
                         Toast.makeText(context, "$message", Toast.LENGTH_LONG).show()
 
-                        showNotification("Nouveau message", "$message")
+                        showNotification("$message", "$message")
                     }
                 }
 
