@@ -104,7 +104,7 @@
 
             <Button
                 android:id="@+id/connectButton"
-                android:layout_width="210dp"
+                android:layout_width="159dp"
                 android:layout_height="wrap_content"
                 android:text="@string/connect_btn_text" />
         </LinearLayout>
@@ -112,7 +112,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-
                 android:layout_marginTop="30dp"
                 android:orientation="horizontal">
 
