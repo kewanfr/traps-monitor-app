@@ -20,18 +20,15 @@ import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.json.JSONObject
 
 
-class MqttClientManager(private val context: Context, serverUri: String, clientId: String) {
+class MqttClientManager(private val context: Context, serverUri: String, val clientId: String) {
 
-    var clientId: String = clientId
-    var serverUri: String = serverUri
+    var batteryLevelMonitor: BatteryLevelMonitor = BatteryLevelMonitor(this, context)
     private var mqttClient: MqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
-    private lateinit var batteryLevelMonitor: BatteryLevelMonitor
 
     init {
-
-        batteryLevelMonitor = BatteryLevelMonitor(this, context)
 
         mqttClient.setCallback(object : MqttCallback {
             override fun connectionLost(cause: Throwable?) {
@@ -62,6 +59,27 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
                     val deviceName = topic.substring(7)
                     if (deviceName.lowercase() == clientId.lowercase()) {
                         Toast.makeText(context, "$message", Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                // cmds, json format
+                if (topic.startsWith("cmd/")) {
+                    val deviceName = topic.substring(4)
+                    if (deviceName.lowercase() == clientId.lowercase()) {
+
+                        val jsonContent = message.toString()
+                        val json = JSONObject(jsonContent)
+                        val cmd = json.getString("cmd")
+                        if (cmd == "batteryLevel") {
+                            batteryLevelMonitor.publishBatteryLevel()
+                        }
+                        if (cmd == "batteryChargingStatus") {
+                            batteryLevelMonitor.publishBatteryChargingStatus()
+                        }
+                        if (cmd == "batteryStatus") {
+                            batteryLevelMonitor.publishBatteryLevel()
+                            batteryLevelMonitor.publishBatteryChargingStatus()
+                        }
                     }
                 }
 
@@ -99,6 +117,7 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
                     // Connecté. Ici, souscrivez au topic souhaité.
                     subscribeToTopic("notifs/#")
                     subscribeToTopic("toasts/#")
+                    subscribeToTopic("cmd/#")
                     val clientId = mqttClient.clientId
                     publishMessage("devices/$clientId", "Connected")
 
@@ -119,7 +138,7 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
         }
     }
 
-    public fun subscribeToTopic(topic: String) {
+    fun subscribeToTopic(topic: String) {
         try {
             mqttClient.subscribe(topic, 1)
         } catch (e: Exception) {
@@ -142,7 +161,7 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
         val notificationId = 1
         val channelId = "mqtt_messages"
 
-        val sharedPref = context.getSharedPreferences("MQTTConfig", AppCompatActivity.MODE_PRIVATE);
+        val sharedPref = context.getSharedPreferences("MQTTConfig", AppCompatActivity.MODE_PRIVATE)
 
         val toogleNotifSound = sharedPref.getBoolean("toogleNotifSound", true)
 
@@ -162,50 +181,9 @@ class MqttClientManager(private val context: Context, serverUri: String, clientI
             .setContentTitle(title)
             .setContentText(content)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(content));
+            .setStyle(NotificationCompat.BigTextStyle().bigText(content))
 
         if (toogleNotifSound) builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-
-        with(NotificationManagerCompat.from(context)) {
-            if (ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return
-            }
-            notify(notificationId, builder.build())
-        }
-    }
-
-    private fun showNotification2(title: String, content: String) {
-        val channelId = "mqtt_messages"
-        val notificationId = 1
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Messages MQTT"
-            val descriptionText = "Notifications de messages MQTT"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(channelId, name, importance).apply {
-                description = descriptionText
-            }
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle(title)
-            .setContentText(content)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
         with(NotificationManagerCompat.from(context)) {
             if (ActivityCompat.checkSelfPermission(
