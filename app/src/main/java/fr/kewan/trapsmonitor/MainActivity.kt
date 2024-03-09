@@ -8,11 +8,6 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import android.content.Context
-import android.net.wifi.WifiManager
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -129,35 +124,7 @@ class MainActivity : AppCompatActivity() {
 
         // Toast.makeText(this, "Device name: $CLIENT_ID", Toast.LENGTH_SHORT).show();
 
-
         connectToServer()
-    }
-
-
-
-    fun getWifiInfo() {
-        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // Demandez la permission si elle n'est pas déjà accordée
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
-            return
-        }
-
-        val wifiInfo = wifiManager.connectionInfo;
-
-        if (wifiInfo != null) {
-            val bssid = wifiInfo.bssid
-            val rssi = wifiInfo.rssi
-            val signalStrength = WifiManager.calculateSignalLevel(rssi, 100)
-
-            val macAddress = wifiInfo.macAddress
-
-            val wifiData = "BSSID: $bssid, Signal Strength: $signalStrength, MAC Address: $macAddress"
-            mqttClientManager.publishMessage("wifi/${mqttClientManager.clientId}", wifiData)
-        } else {
-            mqttClientManager.publishMessage("wifi/${mqttClientManager.clientId}", "couldn't get wifi info")
-        }
     }
 
 

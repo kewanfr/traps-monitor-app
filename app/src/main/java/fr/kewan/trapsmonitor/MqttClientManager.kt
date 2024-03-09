@@ -6,7 +6,10 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.RingtoneManager
+import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -28,11 +31,21 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
     var batteryLevelMonitor: BatteryLevelMonitor = BatteryLevelMonitor(this, context)
     private var mqttClient: MqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
 
+
+    private val WifiUpdateHandler = Handler(Looper.getMainLooper())
+    private val runnableCodeWifiUpdate = object : Runnable {
+        override fun run() {
+            wifiInfo()
+            WifiUpdateHandler.postDelayed(this, 60*1000*10) // 10 minutes en millisecondes
+        }
+    }
     init {
         mqttClient.setCallback(object : MqttCallback {
             override fun connectionLost(cause: Throwable?) {
                 // Gérer la perte de connexion ici
                 batteryLevelMonitor.stopMonitoring()
+
+                WifiUpdateHandler.removeCallbacks(runnableCodeWifiUpdate)
                 Toast.makeText(context, "Connexion au serveur perdue", Toast.LENGTH_SHORT).show()
                 connect()
 
@@ -71,14 +84,15 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
                         val cmd = json.getString("cmd")
                         if (cmd == "batteryLevel") {
                             batteryLevelMonitor.publishBatteryLevel()
-                        }
-                        if (cmd == "batteryChargingStatus") {
+                        }else if (cmd == "batteryChargingStatus") {
                             batteryLevelMonitor.publishBatteryChargingStatus()
-                        }
-                        if (cmd == "batteryStatus") {
+                        }else if (cmd == "batteryStatus") {
                             batteryLevelMonitor.publishBatteryLevel()
                             batteryLevelMonitor.publishBatteryChargingStatus()
+                        } else if (cmd == "wifiInfo") {
+                            wifiInfo()
                         }
+
                     }
                 }
 
@@ -123,6 +137,9 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
 
                     Toast.makeText(context, "Connecté au serveur", Toast.LENGTH_SHORT).show()
                     batteryLevelMonitor.startMonitoring()
+
+                    wifiInfo()
+                    WifiUpdateHandler.post(runnableCodeWifiUpdate)
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -130,6 +147,7 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
 
                     Toast.makeText(context, "Échec de la connexion au serveur", Toast.LENGTH_SHORT).show()
                     batteryLevelMonitor.stopMonitoring()
+                    WifiUpdateHandler.removeCallbacks(runnableCodeWifiUpdate)
                 }
             })
         } catch (e: Exception) {
@@ -137,6 +155,51 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
         }
     }
 
+    fun wifiInfo(){
+        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Demandez la permission si elle n'est pas déjà accordée
+            ActivityCompat.requestPermissions(context as AppCompatActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+            return
+        }
+
+        val wifiInfo = wifiManager.connectionInfo;
+        println("wifiInfo: $wifiInfo")
+
+        if (wifiInfo != null) {
+            val bssid = wifiInfo.bssid
+            val rssi = wifiInfo.rssi
+            val ssid = wifiInfo.ssid
+            val ip = wifiInfo.ipAddress
+            val ipString = String.format(
+                "%d.%d.%d.%d",
+                ip and 0xff,
+                ip shr 8 and 0xff,
+                ip shr 16 and 0xff,
+                ip shr 24 and 0xff
+            )
+            val mac = wifiInfo.macAddress
+            val linkSpeed = wifiInfo.linkSpeed
+            val signalStrength = WifiManager.calculateSignalLevel(rssi, 100)
+
+
+            val jsonObj = JSONObject()
+            jsonObj.put("rssi", rssi)
+            jsonObj.put("ssid", ssid)
+            jsonObj.put("ip", ipString)
+            jsonObj.put("mac", mac)
+            jsonObj.put("linkSpeed", linkSpeed)
+            jsonObj.put("signalStrength", signalStrength)
+            jsonObj.put("bssid", bssid)
+
+            publishMessage("wifi/${clientId}", jsonObj.toString())
+        } else {
+            publishMessage("wifi/${clientId}", "couldn't get wifi info")
+        }
+
+    }
     fun subscribeToTopic(topic: String) {
         try {
             mqttClient.subscribe(topic, 1)
