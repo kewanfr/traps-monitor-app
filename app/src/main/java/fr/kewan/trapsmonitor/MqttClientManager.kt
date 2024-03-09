@@ -94,6 +94,13 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
                                     }
 
                                     "wifiInfo" -> wifiInfo()
+                                    "ping" -> {
+                                        val startTime = System.currentTimeMillis() // Enregistrez le moment où le ping est reçu
+                                        publishMessage("ping/${clientId}", "Ping received")
+                                        val endTime = System.currentTimeMillis() // Enregistrez le moment où la réponse est envoyée
+                                        val elapsedTime = endTime - startTime // Calculez le temps écoulé
+                                        publishMessage("ping/${clientId}", "$elapsedTime")
+                                    }
                                 }
 
                             }
@@ -170,7 +177,7 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
             return
         }
 
-        val wifiInfo = wifiManager.connectionInfo;
+        val wifiInfo = wifiManager.connectionInfo
         println("wifiInfo: $wifiInfo")
 
         if (wifiInfo != null) {
