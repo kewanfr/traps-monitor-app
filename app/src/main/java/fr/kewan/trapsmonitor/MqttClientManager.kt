@@ -58,41 +58,46 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
                 }
 
                 // topic: notifs/DeviceName
-                if (topic.startsWith("notifs/")) {
-                    val deviceName = topic.substring(7)
-                    if (deviceName.lowercase() == clientId.lowercase()) {
-                        Toast.makeText(context, "$message", Toast.LENGTH_LONG).show()
+                topic.let {
+                    when {
+                        it.startsWith("notifs/") -> {
+                            val deviceName = topic.substring(7)
+                            if (deviceName.lowercase() == clientId.lowercase()) {
+                                Toast.makeText(context, "$message", Toast.LENGTH_LONG).show()
 
-                        showNotification("$message", "$message")
-                    }
-                }
-
-                if (topic.startsWith("toasts/")) {
-                    val deviceName = topic.substring(7)
-                    if (deviceName.lowercase() == clientId.lowercase()) {
-                        Toast.makeText(context, "$message", Toast.LENGTH_LONG).show()
-                    }
-                }
-
-                // cmds, json format
-                if (topic.startsWith("cmd/")) {
-                    val deviceName = topic.substring(4)
-                    if (deviceName.lowercase() == clientId.lowercase()) {
-
-                        val jsonContent = message.toString()
-                        val json = JSONObject(jsonContent)
-                        val cmd = json.getString("cmd")
-                        if (cmd == "batteryLevel") {
-                            batteryLevelMonitor.publishBatteryLevel()
-                        }else if (cmd == "batteryChargingStatus") {
-                            batteryLevelMonitor.publishBatteryChargingStatus()
-                        }else if (cmd == "batteryStatus") {
-                            batteryLevelMonitor.publishBatteryLevel()
-                            batteryLevelMonitor.publishBatteryChargingStatus()
-                        } else if (cmd == "wifiInfo") {
-                            wifiInfo()
+                                showNotification("$message", "$message")
+                            }
                         }
 
+                        it.startsWith("toasts/") -> {
+                            val deviceName = topic.substring(7)
+                            if (deviceName.lowercase() == clientId.lowercase()) {
+                                Toast.makeText(context, "$message", Toast.LENGTH_LONG).show()
+                            }
+                        }
+
+                        // cmds, json format
+                        it.startsWith("cmd/") -> {
+                            val deviceName = topic.substring(4)
+                            if (deviceName.lowercase() == clientId.lowercase()) {
+
+                                val jsonContent = message.toString()
+                                val json = JSONObject(jsonContent)
+                                val cmd = json.getString("cmd")
+
+                                when (cmd) {
+                                    "batteryLevel" -> batteryLevelMonitor.publishBatteryLevel()
+                                    "batteryChargingStatus" -> batteryLevelMonitor.publishBatteryChargingStatus()
+                                    "batteryStatus" -> {
+                                        batteryLevelMonitor.publishBatteryLevel()
+                                        batteryLevelMonitor.publishBatteryChargingStatus()
+                                    }
+
+                                    "wifiInfo" -> wifiInfo()
+                                }
+
+                            }
+                        }
                     }
                 }
 
