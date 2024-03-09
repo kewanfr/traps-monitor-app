@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
 
         if (sharedPref.contains("serverHost")) {
-            serverHost.setText(sharedPref.getString("serverHost", "192.168.0.21" ?: ""))
+            serverHost.setText(sharedPref.getString("serverHost", "192.168.0.21"))
         }
 
         if (sharedPref.contains("serverPort")) {
@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         // On vérifie si on est déjà connecté et si mqttClientManager est déjà initialisé
         val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
 
-        val host = sharedPref.getString("serverHost", "192.168.0.21" ?: "")
+        val host = sharedPref.getString("serverHost", "192.168.0.21")
         val port = sharedPref.getInt("serverPort", 1883)
         val name = sharedPref.getString("deviceName", Build.MODEL)
 
