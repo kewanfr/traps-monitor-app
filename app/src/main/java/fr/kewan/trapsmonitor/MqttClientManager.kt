@@ -1,20 +1,28 @@
 package fr.kewan.trapsmonitor
 
 import android.Manifest
+import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.RingtoneManager
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.dcastalia.localappupdate.DownloadApk
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
@@ -100,6 +108,28 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
                                         val endTime = System.currentTimeMillis() // Enregistrez le moment où la réponse est envoyée
                                         val elapsedTime = endTime - startTime // Calculez le temps écoulé
                                         publishMessage("ping/${clientId}", "$elapsedTime")
+                                    }
+                                    "updateApp" -> {
+                                        val apkUrl = json.getString("url") // L'URL du fichier APK
+                                        updateApp(apkUrl)
+                                    }
+
+                                    "getVersion" -> {
+                                        try {
+                                            val pInfo = context.packageManager.getPackageInfo(
+                                                context.packageName,
+                                                0
+                                            )
+                                            val version = pInfo.versionName
+                                            val versionCode = pInfo.versionCode
+
+                                            val jsonObj = JSONObject()
+                                            jsonObj.put("versionCode", versionCode)
+                                            jsonObj.put("versionName", version)
+                                            publishMessage("version/${clientId}", jsonObj.toString())
+                                        } catch (e: PackageManager.NameNotFoundException) {
+                                            e.printStackTrace()
+                                        }
                                     }
                                 }
 
@@ -229,6 +259,86 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
         } catch (e: MqttException) {
             e.printStackTrace()
         }
+    }
+
+
+    fun updateApp(apkUrl: String){
+        val url = "https://raw.githubusercontent.com/kewanfr/traps-monitor-app/main/app-debug.apk"
+        println("updateApp: $apkUrl")
+        println("updateApp: $url")
+        val downloadApk = DownloadApk(context)
+
+        // With standard fileName 'App Update.apk'
+        downloadApk.startDownloadingApk(apkUrl)
+        println("start downloading apk")
+    }
+    fun updateApp2(apkUrl: String) {
+        println("updateApp: $apkUrl")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val packageManager = context.packageManager
+            if (!packageManager.canRequestPackageInstalls()) {
+                // Demandez la permission d'installer des packages inconnus
+                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                intent.data = Uri.parse("package:" + context.packageName)
+                context.startActivity(intent)
+                return
+            }
+        }
+
+        val request = DownloadManager.Request(Uri.parse(apkUrl))
+        request.setMimeType("application/vnd.android.package-archive")
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "update.apk")
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+
+        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val downloadId = downloadManager.enqueue(request)
+        val broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
+                    val query = DownloadManager.Query()
+                    query.setFilterById(downloadId)
+                    val cursor = downloadManager.query(query)
+                    if (cursor.moveToFirst()) {
+                        val columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                        if (columnIndex != -1 && DownloadManager.STATUS_SUCCESSFUL == cursor.getInt(columnIndex)) {
+                            val uriColumnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                            if (uriColumnIndex != -1) {
+                                val uriString = cursor.getString(uriColumnIndex)
+                                println("Download complete. File Uri: $uriString") // Log when the download is complete
+                                val intent = Intent(Intent.ACTION_VIEW)
+                                intent.setDataAndType(Uri.parse(uriString), "application/vnd.android.package-archive")
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                println("Starting APK installation.") // Log when the APK installation starts
+                                context.startActivity(intent)
+                            }
+                        }
+                    }
+                    cursor.close()
+                }
+            }
+        }
+       /* val broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
+                    val query = DownloadManager.Query()
+                    query.setFilterById(downloadId)
+                    val cursor = downloadManager.query(query)
+                    if (cursor.moveToFirst()) {
+                        val columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                        if (DownloadManager.STATUS_SUCCESSFUL == cursor.getInt(columnIndex)) {
+                            val uriString = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.setDataAndType(Uri.parse(uriString), "application/vnd.android.package-archive")
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            context.startActivity(intent)
+                        }
+                    }
+                    cursor.close()
+                }
+            }
+        }*/
+
+        context.registerReceiver(broadcastReceiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
     }
 
     private fun showNotification(title: String, content: String){
