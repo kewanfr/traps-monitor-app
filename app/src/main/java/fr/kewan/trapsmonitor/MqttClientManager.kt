@@ -109,12 +109,12 @@ class MqttClientManager(private val context: Context, serverUri: String, val cli
                                         val elapsedTime = endTime - startTime // Calculez le temps écoulé
                                         publishMessage("ping/${clientId}", "$elapsedTime")
                                     }
-                                    "updateApp" -> {
+                                    "update" -> {
                                         val apkUrl = json.getString("url") // L'URL du fichier APK
                                         updateApp(apkUrl)
                                     }
 
-                                    "getVersion" -> {
+                                    "version" -> {
                                         try {
                                             val pInfo = context.packageManager.getPackageInfo(
                                                 context.packageName,
