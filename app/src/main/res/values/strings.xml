@@ -11,6 +11,6 @@
     <string name="toogle_send_stats_text">Activer l\'envoi des statistiques</string>
     <string name="connect_btn_text">Connecter</string>
     <string name="disconnect_btn_text">Déconnecter</string>
-    <string name="test_notif_btn_text">Test Notification</string>
+    <string name="test_notif_btn_text">Test</string>
     <string name="save_btn_text">Enregistrer</string>
 </resources>
