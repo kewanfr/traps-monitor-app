@@ -5,7 +5,7 @@ plugins {
 
 val versionMajor = 1
 val versionMinor = 4
-val versionPatch = 4
+val versionPatch = 11
 
 
 val versionBuild = 20
@@ -57,6 +57,8 @@ dependencies {
 
     implementation(libs.paho.mqtt)
     implementation(libs.paho.mqtt.service)
+
+    implementation(libs.androidAppUpdateLibrary)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
