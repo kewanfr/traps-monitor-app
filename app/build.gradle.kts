@@ -36,7 +36,16 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("debug")
         }
+
+        debug {
+            // Set the file name using the version name
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "${versionMajor}.${versionMinor}.${versionPatch}-debug"
+
+        }
+
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -44,6 +53,18 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    applicationVariants.all { variant ->
+        variant.outputs
+            // default type don't have outputFileName field
+            .map { it as com.android.build.gradle.internal.api.ApkVariantOutputImpl }
+            .all { output ->
+                output.outputFileName = "${variant.applicationId}-${variant.versionName}.apk"
+                false
+            }
+    }
+
+
 }
 
 dependencies {
