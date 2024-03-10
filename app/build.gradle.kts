@@ -5,10 +5,10 @@ plugins {
 
 val versionMajor = 1
 val versionMinor = 4
-val versionPatch = 14
+val versionPatch = 15
 // 1.4.14 Ajout du lancement au démarrage
 
-val versionBuild = 26
+val versionBuild = 27
 
 val bundleId = "fr.kewan.trapsmonitor"
 
@@ -40,7 +40,7 @@ android {
         debug {
             // Set the file name using the version name
             applicationIdSuffix = ".debug"
-            versionNameSuffix = "${versionMajor}.${versionMinor}.${versionPatch}-debug"
+//            versionNameSuffix = "${versionMajor}.${versionMinor}.${versionPatch}-debug"
 
         }
 
@@ -54,15 +54,15 @@ android {
         jvmTarget = "1.8"
     }
 
-    applicationVariants.all { variant ->
-        variant.outputs
-            // default type don't have outputFileName field
-            .map { it as com.android.build.gradle.internal.api.ApkVariantOutputImpl }
-            .all { output ->
-                output.outputFileName = "${variant.applicationId}-${variant.versionName}.apk"
-                false
-            }
-    }
+//    applicationVariants.all { variant ->
+//        variant.outputs
+//            // default type don't have outputFileName field
+//            .map { it as com.android.build.gradle.internal.api.ApkVariantOutputImpl }
+//            .all { output ->
+//                output.outputFileName = "${variant.applicationId}-${variant.versionName}.apk"
+//                false
+//            }
+//    }
 
 
 }
