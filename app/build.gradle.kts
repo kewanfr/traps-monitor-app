@@ -5,10 +5,10 @@ plugins {
 
 val versionMajor = 1
 val versionMinor = 4
-val versionPatch = 15
+val versionPatch = 16
 // 1.4.14 Ajout du lancement au démarrage
 
-val versionBuild = 27
+val versionBuild = 28
 
 val bundleId = "fr.kewan.trapsmonitor"
 
@@ -39,7 +39,7 @@ android {
 
         debug {
             // Set the file name using the version name
-            applicationIdSuffix = ".debug"
+            // applicationIdSuffix = ".debug"
 //            versionNameSuffix = "${versionMajor}.${versionMinor}.${versionPatch}-debug"
 
         }
