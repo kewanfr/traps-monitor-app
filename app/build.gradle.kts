@@ -27,7 +27,7 @@ android {
         targetSdk = buildVersion
         versionCode = versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
-
+        multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.paho.mqtt.service)
 
     implementation(libs.androidAppUpdateLibrary)
+    implementation('com.android.support:multidex:1.0.3')
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
