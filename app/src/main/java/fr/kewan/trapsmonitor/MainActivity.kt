@@ -2,12 +2,14 @@ package fr.kewan.trapsmonitor
 
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,6 +49,21 @@ class MainActivity : AppCompatActivity() {
 
         // Chargez les préférences
         val sharedPref = getSharedPreferences("MQTTConfig", MODE_PRIVATE)
+
+        // get datas from traps_config.txt in Downloads folder
+        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "traps_config.txt")
+        if (file.exists()) {
+            val lines = file.readLines()
+            for (line in lines) {
+                val (key, value) = line.split("=")
+                when (key) {
+                    "serverHost" -> serverHost.setText(value)
+                    "serverPort" -> serverPort.setText(value)
+                    "deviceName" -> deviceName.setText(value)
+                    "toogleNotifSound" -> toogleNotifSound.isChecked = value.toBoolean()
+                }
+            }
+        }
 
         if (sharedPref.contains("serverHost")) {
             serverHost.setText(sharedPref.getString("serverHost", "192.168.0.21"))
@@ -173,6 +190,11 @@ class MainActivity : AppCompatActivity() {
 //                putInt("refreshInterval", interval)
             apply()
         }
+        // save file to storage that can be accessed by other apps
+        // save in Downloads folder
+        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "traps_config.txt")
+        file.writeText("serverHost=$host\nserverPort=$port\ndeviceName=$name\ntoogleNotifSound=$toogle_notif_sound\n")
+
     }
 
     override fun onDestroy() {

@@ -5,10 +5,11 @@ plugins {
 
 val versionMajor = 1
 val versionMinor = 4
-val versionPatch = 16
+val versionPatch = 17
 // 1.4.14 Ajout du lancement au démarrage
+// 1.4.17 Save config in txt file
 
-val versionBuild = 28
+val versionBuild = 29
 
 val bundleId = "fr.kewan.trapsmonitor"
 
